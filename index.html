@@ -218,7 +218,8 @@ function toggleSound(){AudioController.stopAllAudio();soundEnabled=!soundEnabled
 
 document.getElementById('flashcard').addEventListener('click',(e)=>{if(!e.target.closest('.dino-image')&&!e.target.closest('.sound-btn')&&!e.target.closest('.soundout-part')){AudioController.stopAllAudio();document.getElementById('flashcard').classList.toggle('flipped');if(soundEnabled){setTimeout(()=>{const sp=new SpeechSynthesisUtterance("Flip!");sp.rate=0.8;sp.pitch=1.8;window.speechSynthesis.speak(sp);},150);}}});
 updateCard();
-setTimeout(()=>{if(soundEnabled){const welcome=new SpeechSynthesisUtterance("Welcome to Colorful Dinosaur ABCs! 🦕🦖");welcome.rate=0.7;welcome.pitch=1.6;window.speechSynthesis.speak(welcome);}},500);
+// Fixed welcome message - no emojis in the speech to avoid "T-Rex" pronunciation!
+setTimeout(()=>{if(soundEnabled){const welcome=new SpeechSynthesisUtterance("Welcome to Dinosaur ABCs. Let's learn about dinosaurs!");welcome.rate=0.7;welcome.pitch=1.6;window.speechSynthesis.speak(welcome);}},500);
 </script>
 </body>
 </html>
