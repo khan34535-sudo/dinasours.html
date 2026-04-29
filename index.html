@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Dinosaur Flashcards - Colorful Emojis!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&display=swap" rel="stylesheet">
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'Comic Sans MS',cursive;background:linear-gradient(135deg,#ffb6c1,#ffc0cb,#ffd1dc);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+        .watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-45deg);font-size:120px;color:rgba(255,0,0,0.12);font-weight:bold;pointer-events:none;z-index:1000;white-space:nowrap;font-family:'Bubblegum Sans',cursive}
+        
+        /* Colorful background dinosaurs with filters */
+        .bg-dino{position:absolute;font-size:4rem;z-index:-1;animation:float 6s ease-in-out infinite;filter:drop-shadow(2px 4px 6px rgba(0,0,0,0.2))}
+        .bg-dino.top-left{top:5%;left:3%;filter:hue-rotate(0deg)}
+        .bg-dino.top-right{top:8%;right:3%;animation-delay:1s;filter:hue-rotate(90deg)}
+        .bg-dino.bottom-left{bottom:5%;left:5%;animation-delay:2s;filter:hue-rotate(180deg)}
+        .bg-dino.bottom-right{bottom:8%;right:5%;animation-delay:3s;filter:hue-rotate(270deg)}
+        
+        @keyframes float{0%,100%{transform:translateY(0)rotate(0deg)}33%{transform:translateY(-25px)rotate(5deg)}66%{transform:translateY(15px)rotate(-5deg)}}
+        .container{max-width:1000px;width:100%;text-align:center;z-index:1}
+        .header h1{font-family:'Bubblegum Sans',cursive;font-size:2.8rem;color:black;text-shadow:5px5px0#ffeb3b;background:linear-gradient(145deg,#ff9a9e,#fad0c4);padding:15px30px;border-radius:80px;border:8px solid #ff5722;display:inline-block}
+        
+        /* Colorful egg animations */
+        .dino-eggs{margin:8px 0;font-size:1.8rem}
+        .hatching-egg{display:inline-block;animation:hatch2s infinite;margin:0 5px}
+        .egg-1{animation-delay:0s;filter:hue-rotate(0deg)}
+        .egg-2{animation-delay:0.3s;filter:hue-rotate(72deg)}
+        .egg-3{animation-delay:0.6s;filter:hue-rotate(144deg)}
+        .egg-4{animation-delay:0.9s;filter:hue-rotate(216deg)}
+        .egg-5{animation-delay:1.2s;filter:hue-rotate(288deg)}
+        
+        @keyframes hatch{0%,100%{transform:scale(1)}50%{transform:scale(1.15)rotate(5deg)}}
+        
+        .flashcard-container{position:relative;width:100%;height:720px;margin-bottom:20px;perspective:1000px}
+        .flashcard{width:100%;height:100%;position:absolute;transform-style:preserve-3d;transition:transform0.6s;cursor:pointer}
+        .flashcard.flipped{transform:rotateY(180deg)}
+        .card-front,.card-back{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:40px;display:flex;flex-direction:column;align-items:center;padding:20px;box-shadow:0 25px 50px rgba(0,0,0,0.3)}
+        .card-front{background:linear-gradient(145deg,#a8e6cf,#88dba3);border:12px solid #66bb6a}
+        .card-back{background:linear-gradient(145deg,#d8b4fe,#c084fc);transform:rotateY(180deg);color:white;border:12px solid #a855f7}
+        .dino-image{width:400px;height:260px;margin:5px0;display:flex;align-items:center;justify-content:center;border-radius:25px;background:rgba(255,255,255,0.5);overflow:hidden;cursor:pointer;font-size:5rem}
+        .dino-image img{width:100%;height:100%;object-fit:contain;border-radius:20px}
+        .dino-image .emoji-fallback{font-size:5rem;animation:wiggle 2s infinite}
+        @keyframes wiggle{0%,100%{transform:rotate(0deg)}25%{transform:rotate(10deg)}75%{transform:rotate(-10deg)}}
+        .dino-image img.pop,.dino-image .emoji-fallback.pop{animation:popAnimation0.5s}
+        @keyframes popAnimation{0%{transform:scale(1)}50%{transform:scale(1.4)rotate(5deg)}100%{transform:scale(1)}}
+        .letter{font-family:'Bubblegum Sans',cursive;font-size:3rem;font-weight:bold;color:black;text-shadow:3px3px0#ffeb3b;margin:3px0}
+        .dino-name{font-family:'Bubblegum Sans',cursive;font-size:1.8rem;font-weight:bold;color:black;text-shadow:2px2px0#ffeb3b}
+        .sound-buttons{display:flex;flex-direction:column;gap:8px;margin:8px0;width:90%}
+        .sound-btn{background:linear-gradient(145deg,#81d4fa,#4fc3f7);border:none;padding:10px;border-radius:25px;color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px0#29b6f6;font-size:1rem}
+        .sound-btn.name-btn{background:linear-gradient(145deg,#7986cb,#5c6bc0);box-shadow:0 4px0#3f51b5}
+        .sound-btn.fact-btn{background:linear-gradient(145deg,#ffb74d,#ffa726);box-shadow:0 4px0#ff9800}
+        .sound-btn.diet-btn{background:linear-gradient(145deg,#ba68c8,#ab47bc);box-shadow:0 4px0#8e24aa}
+        .sound-btn.soundout-btn{background:linear-gradient(145deg,#ff6b6b,#ff5252);box-shadow:0 4px0#ff3d00;animation:pulse2s infinite}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+        .dino-fact,.dino-diet{font-size:1rem;margin:4px0;text-align:center}
+        .soundout-bubble{background:#ffeb3b;color:#333;padding:8px12px;border-radius:20px;font-size:1rem;margin:6px0;border:3px solid #ff9800;display:inline-block}
+        .soundout-display{display:flex;justify-content:center;align-items:center;gap:6px;flex-wrap:wrap;margin:8px0}
+        .soundout-part{background:#fff;padding:8px12px;border-radius:12px;font-size:1.1rem;font-weight:bold;cursor:pointer;border:3px solid #4caf50;box-shadow:0 3px0#388e3c;min-width:45px;text-align:center}
+        .soundout-part.active{background:#ffeb3b;border-color:#ff9800;animation:bounce0.3s}
+        @keyframes bounce{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+        .controls{display:flex;justify-content:center;gap:12px;margin:12px 0;flex-wrap:wrap}
+        .control-btn{background:#4caf50;border:none;padding:10px18px;border-radius:50px;color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px0#388e3c;font-size:1rem}
+        .card-counter{font-size:1rem;color:#2196f3;font-weight:bold}
+        .card-back-content{display:flex;flex-direction:column;align-items:center;width:100%;height:calc(100% - 55px);overflow-y:auto;padding:5px}
+        .card-back-content::-webkit-scrollbar{width:6px}
+        .emoji-decoration{font-size:2rem;margin:8px0}
+        .colorful-dino{display:inline-block;margin:0 3px;animation:float 3s infinite}
+        .colorful-dino:nth-child(1){filter:hue-rotate(0deg);animation-delay:0s}
+        .colorful-dino:nth-child(2){filter:hue-rotate(60deg);animation-delay:0.2s}
+        .colorful-dino:nth-child(3){filter:hue-rotate(120deg);animation-delay:0.4s}
+        .colorful-dino:nth-child(4){filter:hue-rotate(180deg);animation-delay:0.6s}
+        .colorful-dino:nth-child(5){filter:hue-rotate(240deg);animation-delay:0.8s}
+        .colorful-dino:nth-child(6){filter:hue-rotate(300deg);animation-delay:1s}
+        @media(max-width:600px){.dino-image{width:280px;height:200px}.flashcard-container{height:650px}.letter{font-size:2.2rem}.dino-name{font-size:1.4rem}.watermark{font-size:60px}}
+    </style>
+</head>
+<body>
+<div class="watermark">🦕 Dino ABCs 🦖</div>
+
+<!-- Colorful background dinosaurs with different filters -->
+<div class="bg-dino top-left">🦕</div>
+<div class="bg-dino top-right">🦖</div>
+<div class="bg-dino bottom-left">🦕</div>
+<div class="bg-dino bottom-right">🦖</div>
+
+<div class="container">
+    <div class="header"><h1>🦕 Colorful Dino ABCs 🌈</h1></div>
+    
+    <!-- Colorful hatching eggs -->
+    <div class="dino-eggs">
+        <span class="hatching-egg egg-1">🥚</span>
+        <span class="hatching-egg egg-2">🥚</span>
+        <span class="hatching-egg egg-3">🥚</span>
+        <span class="hatching-egg egg-4">🥚</span>
+        <span class="hatching-egg egg-5">🥚</span>
+    </div>
+
+    <div class="flashcard-container">
+        <div class="flashcard" id="flashcard">
+            <div class="card-front">
+                <div class="dino-name" id="currentName">Ankylosaurus</div>
+                <div class="dino-image" onclick="popDinosaur()">
+                    <img id="frontImage" src="a.png" alt="Dinosaur" onerror="showColorfulEmoji(this)">
+                </div>
+                <div class="letter" id="currentLetter">A</div>
+                <div class="sound-buttons"><button class="sound-btn name-btn" onclick="speakNameSlowly()">🔊 Say Name</button><button class="sound-btn" onclick="playAnimalSound()">🎵 Dino Sound</button></div>
+                <div class="instructions">✨ Click card to flip! ✨</div>
+            </div>
+            <div class="card-back">
+                <div class="card-back-content">
+                    <div class="dino-name" id="backName">Ankylosaurus</div>
+                    <div class="dino-image" onclick="popDinosaur()">
+                        <img id="backImage" src="a.png" alt="Dinosaur" onerror="showColorfulEmoji(this)">
+                    </div>
+                    <div class="sound-buttons"><button class="sound-btn fact-btn" onclick="speakDescription()">💬 Fun Fact</button><button class="sound-btn diet-btn" onclick="speakDiet()">🥗 What I Eat</button><button class="sound-btn soundout-btn" onclick="soundOutDinoName()">🎤 Say It With Me!</button></div>
+                    <div class="soundout-bubble" id="soundoutText" style="display:none">🌈 Let's say it together! 🌈</div>
+                    <div class="soundout-display" id="soundoutDisplay"></div>
+                    <div class="dino-fact" id="currentFact">I have a club tail!</div>
+                    <div class="dino-diet" id="currentDiet">I eat: Plants</div>
+                </div>
+                <div class="letter" id="backLetter">A</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls"><button class="control-btn" onclick="prevCard()">← Previous</button><button class="control-btn" onclick="toggleSound()" id="soundBtn">🔊 Sounds On</button><button class="control-btn" onclick="nextCard()">Next →</button></div>
+    <div class="card-counter">Card <span id="currentIndex">1</span> of <span id="totalCards">26</span></div>
+    
+    <!-- Colorful rotating dinosaur emoji decoration -->
+    <div class="emoji-decoration">
+        <span class="colorful-dino">🦕</span>
+        <span class="colorful-dino">🦖</span>
+        <span class="colorful-dino">🦕</span>
+        <span class="colorful-dino">🦖</span>
+        <span class="colorful-dino">🦕</span>
+        <span class="colorful-dino">🦖</span>
+    </div>
+</div>
+
+<script>
+const AudioController={currentAudio:null,currentSpeech:null,stopAllAudio(){if(this.currentAudio)try{this.currentAudio.stop();this.currentAudio.disconnect()}catch(e){}if('speechSynthesis'in window)window.speechSynthesis.cancel();document.querySelectorAll('.soundout-part').forEach(p=>p.classList.remove('active'))}};
+
+// Colorful emoji mapping for each dinosaur (different colors via filters)
+const dinoEmojis = ['🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖','🦕','🦖'];
+
+function showColorfulEmoji(img) {
+    // Replace broken image with colorful emoji
+    const parent = img.parentElement;
+    const emojiSpan = document.createElement('div');
+    emojiSpan.className = 'emoji-fallback';
+    const dinoIndex = currentCardIndex || 0;
+    emojiSpan.innerHTML = dinoEmojis[dinoIndex % dinoEmojis.length];
+    // Apply fun color filter based on dinosaur
+    const hue = (currentCardIndex * 15) % 360;
+    emojiSpan.style.filter = `hue-rotate(${hue}deg) drop-shadow(2px 4px 6px rgba(0,0,0,0.2))`;
+    emojiSpan.style.fontSize = '5rem';
+    emojiSpan.style.animation = 'wiggle 2s infinite';
+    img.style.display = 'none';
+    parent.appendChild(emojiSpan);
+}
+
+const dinos = [
+    {letter:'A',name:'Ankylosaurus',fact:'I have a club tail to protect myself!',diet:'Herbivore',image:'a.png',soundOut:["An","ky","lo","saur","us"],soundDesc:"Gentle rumble",emoji:'🦕'},
+    {letter:'B',name:'Brachiosaurus',fact:'I have a very long neck to eat leaves!',diet:'Herbivore',image:'b.png',soundOut:["Brach","i","o","saur","us"],soundDesc:"Deep trumpet",emoji:'🦕'},
+    {letter:'C',name:'Corythosaurus',fact:'I have a cool helmet on my head!',diet:'Herbivore',image:'c.jpeg',soundOut:["Cor","yth","o","saur","us"],soundDesc:"Squeaky honk",emoji:'🦕'},
+    {letter:'D',name:'Diplodocus',fact:'I am one of the longest dinosaurs!',diet:'Herbivore',image:'d.jpeg',soundOut:["Dip","lo","do","cus"],soundDesc:"Rumbling bellow",emoji:'🦕'},
+    {letter:'E',name:'Edmontosaurus',fact:'I have a mouth like a duck!',diet:'Herbivore',image:'e.png',soundOut:["Ed","mon","to","saur","us"],soundDesc:"Duck quack",emoji:'🦕'},
+    {letter:'F',name:'Fukuiraptor',fact:'I am a fast runner!',diet:'Carnivore',image:'f.png',soundOut:["Fu","kui","rap","tor"],soundDesc:"Scary screech",emoji:'🦖'},
+    {letter:'G',name:'Gallimimus',fact:'I run fast like an ostrich!',diet:'Omnivore',image:'g.png',soundOut:["Gal","li","mi","mus"],soundDesc:"Bird chirp",emoji:'🦕'},
+    {letter:'H',name:'Hadrosaurus',fact:'I have many teeth for chewing plants!',diet:'Herbivore',image:'h.png',soundOut:["Had","ro","saur","us"],soundDesc:"Munching",emoji:'🦕'},
+    {letter:'I',name:'Iguanodon',fact:'I have a sharp thumb spike!',diet:'Herbivore',image:'i.png',soundOut:["Ig","ua","no","don"],soundDesc:"Spiky hiss",emoji:'🦕'},
+    {letter:'J',name:'Jobaria',fact:'I am a gentle giant from Africa!',diet:'Herbivore',image:'j.png',soundOut:["Jo","bar","i","a"],soundDesc:"Gentle bellow",emoji:'🦕'},
+    {letter:'K',name:'Kentrosaurus',fact:'I have spikes on my back and tail!',diet:'Herbivore',image:'k.png',soundOut:["Ken","tro","saur","us"],soundDesc:"Spiky rattle",emoji:'🦕'},
+    {letter:'L',name:'Lambeosaurus',fact:'I have a hollow crest on my head!',diet:'Herbivore',image:'l.png',soundOut:["Lam","be","o","saur","us"],soundDesc:"Hollow honk",emoji:'🦕'},
+    {letter:'M',name:'Maiasaura',fact:'I am a good mommy dinosaur!',diet:'Herbivore',image:'m.png',soundOut:["Maia","saur","a"],soundDesc:"Gentle coo",emoji:'🦕'},
+    {letter:'N',name:'Nodosaurus',fact:'I am covered in bony armor!',diet:'Herbivore',image:'n.png',soundOut:["No","do","saur","us"],soundDesc:"Clanking armor",emoji:'🦕'},
+    {letter:'O',name:'Oviraptor',fact:'I take care of my eggs!',diet:'Omnivore',image:'o.png',soundOut:["O","vi","rap","tor"],soundDesc:"Soft peep",emoji:'🦕'},
+    {letter:'P',name:'Parasaurolophus',fact:'I have a long crest like a trombone!',diet:'Herbivore',image:'p.png',soundOut:["Para","saur","o","lo","phus"],soundDesc:"Trombone blast",emoji:'🦕'},
+    {letter:'Q',name:'Quetzalcoatlus',fact:'I am a flying reptile!',diet:'Carnivore',image:'q.png',soundOut:["Quetz","al","co","at","lus"],soundDesc:"Screeching call",emoji:'🦖'},
+    {letter:'R',name:'Rajasaurus',fact:'I am a horned dinosaur from India!',diet:'Carnivore',image:'r.png',soundOut:["Ra","ja","saur","us"],soundDesc:"Loud roar",emoji:'🦖'},
+    {letter:'S',name:'Stegosaurus',fact:'I have big plates on my back!',diet:'Herbivore',image:'s.png',soundOut:["Ste","go","saur","us"],soundDesc:"Low grunt",emoji:'🦕'},
+    {letter:'T',name:'Triceratops',fact:'I have three big horns!',diet:'Herbivore',image:'t.png',soundOut:["Tri","cer","a","tops"],soundDesc:"Trumpeting",emoji:'🦕'},
+    {letter:'U',name:'Utahraptor',fact:'I am the biggest raptor!',diet:'Carnivore',image:'u.png',soundOut:["U","tah","rap","tor"],soundDesc:"Terrible screech",emoji:'🦖'},
+    {letter:'V',name:'Velociraptor',fact:'I have feathers on my body!',diet:'Carnivore',image:'v.png',soundOut:["Ve","lo","ci","rap","tor"],soundDesc:"Bird screech",emoji:'🦖'},
+    {letter:'W',name:'Wuerhosaurus',fact:'I have wide plates on my back!',diet:'Herbivore',image:'w.png',soundOut:["Wuer","ho","saur","us"],soundDesc:"Deep grumble",emoji:'🦕'},
+    {letter:'X',name:'Xenoceratops',fact:'I have a fancy frill on my head!',diet:'Herbivore',image:'x.png',soundOut:["Xe","no","cer","a","tops"],soundDesc:"Fancy trill",emoji:'🦕'},
+    {letter:'Y',name:'Yinlong',fact:'I am a small horned dinosaur!',diet:'Herbivore',image:'y.png',soundOut:["Yin","long"],soundDesc:"Tiny peep",emoji:'🦕'},
+    {letter:'Z',name:'Zuniceratops',fact:'I am one of the first horned dinosaurs!',diet:'Herbivore',image:'z.png',soundOut:["Zu","ni","cer","a","tops"],soundDesc:"Ancient call",emoji:'🦕'}
+];
+
+let currentCardIndex=0,soundEnabled=true,currentSoundOutParts=[];
+
+function playUniqueDinosaurSound(idx){if(!soundEnabled)return;try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);const t=ctx.currentTime;gain.gain.setValueAtTime(0.15,t);gain.gain.exponentialRampToValueAtTime(0.01,t+0.8);const freqs=[80,100,600,90,500,300,800,200,400,120,300,250,350,150,800,200,500,150,130,180,200,600,85,400,1200,160];const types=['sawtooth','sine','square','sawtooth','sine','sawtooth','sine','square','triangle','sine','square','sine','sine','square','sine','sawtooth','sawtooth','sawtooth','sine','sine','sawtooth','square','sine','sine','sine','sawtooth'];osc.type=types[idx];osc.frequency.setValueAtTime(freqs[idx],t);osc.start(t);osc.stop(t+0.8);AudioController.currentAudio=osc}catch(e){}}
+
+function playAnimalSound(){AudioController.stopAllAudio();playUniqueDinosaurSound(currentCardIndex);}
+function speakNameSlowly(){if(!soundEnabled)return;AudioController.stopAllAudio();const name=dinos[currentCardIndex].name;const sp=new SpeechSynthesisUtterance(name);sp.rate=0.6;sp.pitch=1.6;window.speechSynthesis.speak(sp);}
+function speakDescription(){if(!soundEnabled)return;AudioController.stopAllAudio();const sp=new SpeechSynthesisUtterance(dinos[currentCardIndex].fact);sp.rate=0.65;sp.pitch=1.5;window.speechSynthesis.speak(sp);}
+function speakDiet(){if(!soundEnabled)return;AudioController.stopAllAudio();const d=dinos[currentCardIndex];const txt=d.diet==='Herbivore'?"I eat plants and leaves! Yum!":d.diet==='Carnivore'?"I eat meat! Roar!":"I eat plants and meat!";const sp=new SpeechSynthesisUtterance(txt);sp.rate=0.7;sp.pitch=1.5;window.speechSynthesis.speak(sp);}
+
+function soundOutDinoName(){if(!soundEnabled)return;AudioController.stopAllAudio();const dino=dinos[currentCardIndex];const display=document.getElementById('soundoutDisplay');const bubble=document.getElementById('soundoutText');bubble.style.display='inline-block';display.innerHTML='';currentSoundOutParts=[];dino.soundOut.forEach((part,i)=>{const div=document.createElement('div');div.className='soundout-part';div.textContent=part;const colors=['#ff6b6b','#4ecdc4','#45b7d1','#ff9f43','#feca57','#a29bfe','#fd79a8'];div.style.backgroundColor=colors[i%colors.length];div.onclick=()=>{AudioController.stopAllAudio();currentSoundOutParts.forEach(p=>p.classList.remove('active'));div.classList.add('active');const sp=new SpeechSynthesisUtterance(part);sp.rate=0.8;sp.pitch=1.8;window.speechSynthesis.speak(sp);};display.appendChild(div);currentSoundOutParts.push(div);if(i<dino.soundOut.length-1){const space=document.createElement('div');space.className='soundout-part space';space.textContent=' ';space.style.background='transparent';space.style.border='none';space.style.boxShadow='none';space.style.cursor='default';display.appendChild(space);}});setTimeout(()=>{const sp=new SpeechSynthesisUtterance(`🌈 Let's say ${dino.name}! 🌈`);sp.rate=0.7;sp.pitch=1.6;window.speechSynthesis.speak(sp);},300);}
+
+function popDinosaur(){const images=document.querySelectorAll('.dino-image img, .dino-image .emoji-fallback');images.forEach(img=>{img.classList.add('pop');setTimeout(()=>img.classList.remove('pop'),500);});if(soundEnabled){setTimeout(()=>{const sp=new SpeechSynthesisUtterance("Pop!");sp.rate=0.8;sp.pitch=1.8;window.speechSynthesis.speak(sp);},200);}}
+
+function updateCard(){AudioController.stopAllAudio();document.getElementById('soundoutDisplay').innerHTML='';document.getElementById('soundoutText').style.display='none';const d=dinos[currentCardIndex];document.getElementById('currentLetter').textContent=d.letter;document.getElementById('backLetter').textContent=d.letter;document.getElementById('currentName').textContent=d.name;document.getElementById('backName').textContent=d.name;document.getElementById('currentFact').textContent=d.fact;const dietText=d.diet==='Herbivore'?"🌿 I eat: Plants and Leaves 🌿":d.diet==='Carnivore'?"🍖 I eat: Meat 🍖":"🌿🍖 I eat: Plants and Meat 🍖🌿";document.getElementById('currentDiet').textContent=dietText;document.getElementById('currentIndex').textContent=currentCardIndex+1;document.getElementById('totalCards').textContent=dinos.length;
+// Update images and clear any fallback emojis
+const frontImg=document.getElementById('frontImage');const backImg=document.getElementById('backImage');
+frontImg.style.display='block';backImg.style.display='block';
+const frontParent=frontImg.parentElement;const backParent=backImg.parentElement;
+const oldFrontFallback=frontParent.querySelector('.emoji-fallback');if(oldFrontFallback)oldFrontFallback.remove();
+const oldBackFallback=backParent.querySelector('.emoji-fallback');if(oldBackFallback)oldBackFallback.remove();
+frontImg.src=d.image;backImg.src=d.image;
+document.getElementById('flashcard').classList.remove('flipped');}
+
+function nextCard(){AudioController.stopAllAudio();currentCardIndex=(currentCardIndex+1)%dinos.length;updateCard();if(soundEnabled){setTimeout(()=>{const sp=new SpeechSynthesisUtterance("Next dinosaur!");sp.rate=0.8;sp.pitch=1.6;window.speechSynthesis.speak(sp);},200);}}
+function prevCard(){AudioController.stopAllAudio();currentCardIndex=(currentCardIndex-1+dinos.length)%dinos.length;updateCard();}
+function toggleSound(){AudioController.stopAllAudio();soundEnabled=!soundEnabled;document.getElementById('soundBtn').innerHTML=soundEnabled?'🔊 Sounds On':'🔇 Sounds Off';if(soundEnabled){setTimeout(()=>{const sp=new SpeechSynthesisUtterance("Sounds are on!");sp.rate=0.8;sp.pitch=1.6;window.speechSynthesis.speak(sp);},100);}}
+
+document.getElementById('flashcard').addEventListener('click',(e)=>{if(!e.target.closest('.dino-image')&&!e.target.closest('.sound-btn')&&!e.target.closest('.soundout-part')){AudioController.stopAllAudio();document.getElementById('flashcard').classList.toggle('flipped');if(soundEnabled){setTimeout(()=>{const sp=new SpeechSynthesisUtterance("Flip!");sp.rate=0.8;sp.pitch=1.8;window.speechSynthesis.speak(sp);},150);}}});
+updateCard();
+setTimeout(()=>{if(soundEnabled){const welcome=new SpeechSynthesisUtterance("🌈 Welcome to Colorful Dinosaur ABCs! 🦕🦖");welcome.rate=0.7;welcome.pitch=1.6;window.speechSynthesis.speak(welcome);}},500);
+</script>
+</body>
+</html>
